@@ -1,0 +1,7 @@
+nfs:
+  server: 10.0.0.225
+  path: /mnt/my_shares/
+storageClass:
+  name: nfs-client
+  defaultClass: true
+
