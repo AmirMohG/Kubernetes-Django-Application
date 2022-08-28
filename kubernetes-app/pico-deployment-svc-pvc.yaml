@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pico-deployment
+  labels:
+    app: pico
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pico
+  template:
+    metadata:
+      labels:
+        app: pico
+    spec:
+      containers:
+      - name: pico-web
+        image: docker-registry:30000/picoschool-web:1.0
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: static-files
+          mountPath: /home/app/staticfiles
+        envFrom:
+        - configMapRef:
+            name: pico-cm
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres.acid-minimal-cluster.credentials.postgresql.acid.zalan.do
+              key: username
+              optional: false
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres.acid-minimal-cluster.credentials.postgresql.acid.zalan.do
+              key: password
+              optional: false
+      volumes:
+      - name: static-files
+        persistentVolumeClaim:
+          claimName: pico-static-files-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pico-static-files-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pico-svc
+spec:
+  selector:
+    app: pico
+  ports:
+  - port: 8000
+    targetPort: 8000
