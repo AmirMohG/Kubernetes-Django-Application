@@ -1,1 +1,6 @@
-Kubernetes Django application with Postgres DB and Prometheus monitoring. NFS provisioning and nginx-ingress.
+### Django application in Kubernetes Helm chart
+```
+git clone https://github.com/AmirMohG/Kubernetes-Django-Application
+cd Pico
+helm insall <name> . -n <namespace>
+```
