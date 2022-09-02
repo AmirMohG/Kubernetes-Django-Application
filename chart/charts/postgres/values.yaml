@@ -1,0 +1,5 @@
+postgres-operator:
+  image:
+    registry: registry.hub.docker.com
+    repository: kiddouk/postgres-operator-arm
+    tag: latest

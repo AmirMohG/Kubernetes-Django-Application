@@ -1,0 +1,53 @@
+picoApp:
+  replicas: 1
+  image: amirmohgh/pico-web
+  service:
+    targetPort: 8000
+  ingress:
+    hostname: pico.local
+    class: nginx
+  pvc:
+    storage: 2Gi
+picoNginx:
+  image: nginx:latest
+  replicas: 4
+nfs-subdir-external-provisioner:
+  enabled: true
+  nfs:
+    server: 10.0.0.225
+    path: /mnt/my_shares/
+  storageClass:
+    name: nfs-client
+    defaultClass: true
+ingress-nginx:
+  enabled: true
+  controller:
+    kind: DaemonSet
+    admissionWebhooks:
+      enabled: false
+    service:
+      type: NodePort
+      nodePorts:
+        http: 30080
+        https: 30443
+kube-prometheus-stack:
+  enabled: false
+  grafana:
+    service:
+      port: 3000
+    dashboardProviders:
+      dashboardproviders.yaml:
+        apiVersion: 1
+        providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+    dashboards:
+      default:
+        amghezi_nakhand_misoozi:
+          url: https://raw.githubusercontent.com/rfrail3/grafana-dashboards/master/prometheus/node-exporter-full.json

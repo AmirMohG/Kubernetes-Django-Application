@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pico-ingress
+  annotations:
+    nginx.org/proxy-connect-timeout: "30s"
+    nginx.org/proxy-read-timeout: "20s"
+    nginx.org/client-max-body-size: "24m"
+    kubernetes.io/ingress.class: {{ .Values.picoApp.ingress.class }}
+spec:
+  rules:
+  - host: {{ .Values.picoApp.ingress.hostname }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: pico-nginx-svc
+            port:
+              number: 80

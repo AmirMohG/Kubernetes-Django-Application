@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pico-deployment
+  labels:
+    app: pico
+spec:
+  replicas: {{ .Values.picoApp.replicas }}
+  selector:
+    matchLabels:
+      app: pico
+  template:
+    metadata:
+      labels:
+        app: pico
+    spec:
+      containers:
+      - name: pico-web
+        image: {{ .Values.picoApp.image }}
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: static-files
+          mountPath: /home/app/staticfiles
+        envFrom:
+        - configMapRef:
+            name: pico-cm
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres.acid-minimal-cluster.credentials.postgresql.acid.zalan.do
+              key: username
+              optional: false
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres.acid-minimal-cluster.credentials.postgresql.acid.zalan.do
+              key: password
+              optional: false
+      volumes:
+      - name: static-files
+        persistentVolumeClaim:
+          claimName: pico-static-files-pvc

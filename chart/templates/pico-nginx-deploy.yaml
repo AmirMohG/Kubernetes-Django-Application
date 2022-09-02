@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pico-nginx-deployment
+  labels:
+    app: pico-nginx
+spec:
+  replicas: {{ .Values.picoNginx.replicas }}
+  selector:
+    matchLabels:
+      app: pico-nginx
+  template:
+    metadata:
+      labels:
+        app: pico-nginx
+    spec:
+      containers:
+      - name: pico-nginx
+        image: {{ .Values.picoNginx.image }}
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: staticfiles
+          mountPath: /home/app/staticfiles
+          readOnly: true
+        - name: nginx-conf
+          mountPath: /etc/nginx/conf.d/
+          readOnly: true
+      volumes:
+      - name: nginx-conf
+        configMap:
+          name: nginx-cm
+      - name: staticfiles
+        persistentVolumeClaim:
+          claimName: pico-static-files-pvc
